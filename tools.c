@@ -1,5 +1,5 @@
 void wait(int timesec) {
-    volatile i;
+    volatile long int i;
     for(i=0;i<timesec*10000;i++) {}
 }
 

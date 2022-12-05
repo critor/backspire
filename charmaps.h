@@ -38,7 +38,7 @@
 */
 
 /* Font character bitmap data. */
-static unsigned char _font_bits[][CHAR_HEIGHT] =
+static const unsigned char _font_bits[][CHAR_HEIGHT] =
 {
 /* Character 0 (0x00):
    width 6

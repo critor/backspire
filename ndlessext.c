@@ -18,15 +18,15 @@ enum {
   OSCXII52N,OSCXII52T,OSCXII52C,
   OSCX454N,OSCX454C,
   OSCXII53N,OSCXII53T,OSCXII53C,
+  N_OS
 };
-#define NOS (OSCXII53C+1)
 
 // get current OS index for Ndless
 int get_os() {
-  int vals[NOS];
-  for(int i=0; i<NOS; i++)
+  unsigned int vals[N_OS];
+  for(int i=0; i<N_OS; i++)
     vals[i] = i;
-  return nl_osvalue(vals, NOS);
+  return nl_osvalue(vals, N_OS);
 }
 
 // force custom adresses for some CX2 syscalls (3 adresses for OSes 5.2 + 3 adresses for OSes 5.3)

@@ -8,24 +8,23 @@
 #include "console.h"
 
 // classic Nspire & older Nspire CX partition table
-u32 classic_parts_pages_offsets[CLASSIC_CX_NPARTS+1]={MANUF_PAGE_OFFSET,BOOT2_PAGE_OFFSET,BOOTD_PAGE_OFFSET,DIAGS_PAGE_OFFSET,FILES_PAGE_OFFSET,0};
+static const u32 classic_parts_pages_offsets[CLASSIC_CX_NPARTS+1]={MANUF_PAGE_OFFSET,BOOT2_PAGE_OFFSET,BOOTD_PAGE_OFFSET,DIAGS_PAGE_OFFSET,FILES_PAGE_OFFSET,0};
 
 // Nspire CX2 partition table
-u32 cx2_parts_pages_offsets[CX2_NPARTS+1]={CX2_MANUF_PAGE_OFFSET,CX2_BOOTL_PAGE_OFFSET,CX2_PTTDT_PAGE_OFFSET,CX2_UNKN1_PAGE_OFFSET,CX2_DEVCR_PAGE_OFFSET,CX2_OSLDR_PAGE_OFFSET,CX2_INSTL_PAGE_OFFSET,CX2_OINST_PAGE_OFFSET,CX2_OSDAT_PAGE_OFFSET,CX2_DIAGS_PAGE_OFFSET,CX2_UNKN2_PAGE_OFFSET,CX2_OSYST_PAGE_OFFSET,CX2_LOGIN_PAGE_OFFSET,CX2_FILES_PAGE_OFFSET,0};
+static const u32 cx2_parts_pages_offsets[CX2_NPARTS+1]={CX2_MANUF_PAGE_OFFSET,CX2_BOOTL_PAGE_OFFSET,CX2_PTTDT_PAGE_OFFSET,CX2_UNKN1_PAGE_OFFSET,CX2_DEVCR_PAGE_OFFSET,CX2_OSLDR_PAGE_OFFSET,CX2_INSTL_PAGE_OFFSET,CX2_OINST_PAGE_OFFSET,CX2_OSDAT_PAGE_OFFSET,CX2_DIAGS_PAGE_OFFSET,CX2_UNKN2_PAGE_OFFSET,CX2_OSYST_PAGE_OFFSET,CX2_LOGIN_PAGE_OFFSET,CX2_FILES_PAGE_OFFSET,0};
 
 // classic Nspire & older Nspire CX boot partitions
-char* classic_bootmodes[2]={"Boot2","Diags"};
+static const char* classic_bootmodes[2]={"Boot2","Diags"};
 
 // Nspire CX2 boot partitions
-char* cx2_bootmodes[3]={"OSLoader","Installer","Diags"};
+static const char* cx2_bootmodes[3]={"OSLoader","Installer","Diags"};
 
-
-extern unsigned short int sscreen[SCREEN_PIXELS];
+extern u16 sscreen[SCREEN_PIXELS];
 
 #define LINETEXT_SIZE 128
 
 enum {NS_CL, NS_CX, NS_CM, NS_CX2, NS_OTHER};
-u8 getHardwareType() {
+static u8 getHardwareType() {
   if(!hwtype()) return NS_CL;
   else {
     u8 type = nl_hwsubtype();
@@ -38,37 +37,35 @@ u8 getHardwareType() {
   }
 }
 
-void resetCurColor() {
+static void resetCurColor() {
   setCurColorRGB(0,0,0);
 }
 
-void setBlocksColor() {
+static void setBlocksColor() {
   setCurColorRGB(0xFF,0xFF,0x7F);
 }
 
-void setPagesColor() {
+static void setPagesColor() {
   setCurColorRGB(0xFF,0xFF,0);
 }
 
-void setBytesColor() {
+static void setBytesColor() {
   setCurColorRGB(0xBF,0xBF,0);
 }
 
-void setInactiveColor() {
+static void setInactiveColor() {
   setCurColorRGB(0x4F,0x4F,0x4F);
 }
 
-void dispNumStr(u16 x, u16 y, char* txt, int unit) {
+static void dispNumStr(u16 x, u16 y, char* txt, int unit) {
   drwBufStr(x,y,txt,0,0,0);
   if(unit) drwBufStr(x+strlen(txt)*CHAR_WIDTH,y,"h",0,0,0);
 }
 
-void dispNum(u16 x, u16 y, u32 val,char* suffix, int unit, int n) {
+static void dispNum(u16 x, u16 y, u32 val,char* suffix, int unit, int n) {
   if(n<=0) n=7;
-  char* txt=malloc(n+1);
-  char* format = "%00X";
-  format[2]='0'+n;
-  sprintf(txt, format, val);
+  char* txt = calloc(n+1, 1);
+  snprintf(txt, n+1, "%0*lX", n, val);
   dispNumStr(x, y, txt, unit);
   if(suffix) {
     invertCurColorRGB();
@@ -77,39 +74,39 @@ void dispNum(u16 x, u16 y, u32 val,char* suffix, int unit, int n) {
   free(txt);
 }
 
-void dispBytesNum(u16 x, u16 y, u32 val,char* suffix, int unit, int n) {
+static void dispBytesNum(u16 x, u16 y, u32 val,char* suffix, int unit, int n) {
   setBytesColor();
   dispNum(x,y,val,suffix,unit,n);
   resetCurColor();
 }
 
-void dispPagesNum(u16 x, u16 y, u32 val, char* suffix, int unit, int n) {
+static void dispPagesNum(u16 x, u16 y, u32 val, char* suffix, int unit, int n) {
   setPagesColor();
   dispNum(x,y,val,suffix,unit,n);
   resetCurColor();
 }
 
-void dispBlocksNum(u16 x, u16 y, u32 val, char* suffix, int unit, int n) {
+static void dispBlocksNum(u16 x, u16 y, u32 val, char* suffix, int unit, int n) {
   setBlocksColor();
   dispNum(x,y,val,suffix,unit,n);
   resetCurColor();
 }
 
-void dispPartitionsNum(u16 x, u16 y, u8 val) {
-  char txt[3];
+static void dispPartitionsNum(u16 x, u16 y, u8 val) {
+  char txt[3] = {0};
   sprintf(txt, "%02d", val);
   setCurColorRGB(0,0,0);
   drwBufStr(x,y,txt,0,0,0);
   resetCurColor();
 }
 
-void dispVersionStr(char* txt, int flags) {
+static void dispVersionStr(char* txt, int flags) {
   setCurColorRGB(0,0xFF,0x7F);
   disp(txt,flags);
   resetCurColor();
 }
 
-void dispKey(t_key key, char* txt) {
+static void dispKey(t_key key, char* txt) {
   if(!isKeyPressed(key)) setCurColorRGB(0xFF,0xFF,0xFF);
   else setCurColorRGB(0,0xFF,0xFF);
   disp(txt,0);
@@ -124,7 +121,7 @@ void dispKey(t_key key, char* txt) {
   resetCurColor();
 }
 
-void sprintVersion(char* txt, u32* version_ptr) {
+static void sprintVersion(char* txt, const u32* version_ptr) {
   u8 major = *(((u8*)version_ptr)+3);
   u8 minor = *(((u8*)version_ptr)+2);
   u16 build = *((u16*)version_ptr);
@@ -133,7 +130,7 @@ void sprintVersion(char* txt, u32* version_ptr) {
 
 enum {ACTION_NONE, ACTION_LEFT, ACTION_RIGHT, ACTION_UP, ACTION_DOWN, ACTION_TAB, ACTION_DEL, ACTION_REBOOT, ACTION_ESC};
 
-int horizRate(int val, int max) {
+static int horizRate(int val, int max) {
   return 1+val*(SCREEN_WIDTH-3)/max;
 }
 
@@ -151,7 +148,6 @@ int main(int argc, char** argv) {
   u8 signature[4];
   u8 i;
   u8 ok=1;
-  u32 null=0;
   u32* minos_ptr;
   u32* boot_ptr;
   u32* last_minos_ptr;
@@ -184,7 +180,7 @@ int main(int argc, char** argv) {
 
       // TI-Nspire CX/CM partition table
       if(!memcmp(buffer+MANUF_PTABLE_OFFSET,MANUF_PTABLE_ID,strlen(MANUF_PTABLE_ID))) {
-        long int offsets_offsets[CLASSIC_CX_NPARTS]={0,MANUF_BOOT2_OFFSET,MANUF_BOOTD_OFFSET,MANUF_DIAGS_OFFSET,MANUF_FILES_OFFSET};
+        const long int offsets_offsets[CLASSIC_CX_NPARTS]={0,MANUF_BOOT2_OFFSET,MANUF_BOOTD_OFFSET,MANUF_DIAGS_OFFSET,MANUF_FILES_OFFSET};
         for(i=1;i<nparts;i++)
           parts_pages_offsets[i] = *((long int*)(buffer+offsets_offsets[i]))/NAND_PAGE_SIZE;
       }
@@ -401,13 +397,14 @@ int main(int argc, char** argv) {
     resetCurColor();
 
     action = ACTION_NONE;
-    while(action==ACTION_NONE || action!=ACTION_LEFT && action!=ACTION_RIGHT && any_key_pressed()) {
+    while(action==ACTION_NONE || (action!=ACTION_LEFT && action!=ACTION_RIGHT && any_key_pressed())) {
+      static const u32 nullVersion = 0;
       resetConsole();
       for(i=0;i<21;i++) displn("",I_TRANSP);
       drwBufHoriz(getConsoleRow()*CHAR_HEIGHT-1,0,SCREEN_WIDTH-1);
       dispKey(KEY_NSPIRE_TAB,"tab");
       disp(": patch minimum allowed OS version to ",I_TRANSP);
-      sprintVersion(txt, &null);
+      sprintVersion(txt, &nullVersion);
       dispVersionStr(txt,0);
       displn("",I_TRANSP);
       if(is_touchpad) {
@@ -443,7 +440,8 @@ int main(int argc, char** argv) {
       else if(isKeyPressed(KEY_NSPIRE_DOWN)) action=ACTION_DOWN;
       else if(isKeyPressed(KEY_NSPIRE_DEL)) action=ACTION_DEL;
 
-      if(is_touchpad && isKeyPressed(KEY_NSPIRE_DOC) && isKeyPressed(KEY_NSPIRE_ENTER) && isKeyPressed(KEY_NSPIRE_EE) || !is_touchpad && isKeyPressed(KEY_NSPIRE_HOME) && isKeyPressed(KEY_NSPIRE_ENTER) && isKeyPressed(KEY_NSPIRE_P)) {
+      if( (is_touchpad && isKeyPressed(KEY_NSPIRE_DOC)  && isKeyPressed(KEY_NSPIRE_ENTER) && isKeyPressed(KEY_NSPIRE_EE))
+      || (!is_touchpad && isKeyPressed(KEY_NSPIRE_HOME) && isKeyPressed(KEY_NSPIRE_ENTER) && isKeyPressed(KEY_NSPIRE_P))) {
         action = ACTION_REBOOT;
         break;
       }
