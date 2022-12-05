@@ -53,22 +53,22 @@ void ext_read_nand(void* dest, int size, int offset, int unknown, int percent_ma
 int ext_write_nand(void *source,int size, unsigned int offset) {
   int os = get_os();
   if((os >= OSCXII52N && os <= OSCXII52C) || (os >= OSCXII53N && os <= OSCXII53C))
-    write_nand_cx2(offset, source, size);
+    return write_nand_cx2(offset, source, size);
   else if (os >= OSCL31N && os <=OSCM31C && nl_ndless_rev() < 989) // Ndless 3.1
-    write_nand_31(source, size, offset);
+    return write_nand_31(source, size, offset);
   else
-    write_nand(source, size, offset);
+    return write_nand(source, size, offset);
 }
 
 int ext_erase_nand(int offset,int end) {
   int os = get_os();
   if((os >= OSCXII52N && os <= OSCXII52C) || (os >= OSCXII53N && os <= OSCXII53C)) {
     int blocks = (int)((end+1-offset)/NAND_PAGE_SIZE/0x40);
-    erase_nand_cx2(offset, blocks);
+    return erase_nand_cx2(offset, blocks);
   }
   else if (os >= OSCL31N && os <=OSCM31C && nl_ndless_rev() < 989) // Ndless 3.1
-    erase_nand_31(offset, end);
+    return erase_nand_31(offset, end);
   else
-    nand_erase_range(offset, end);
+    return nand_erase_range(offset, end);
 }
 
