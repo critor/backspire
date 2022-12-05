@@ -6,8 +6,8 @@ GXX = nspire-g++
 LD  = nspire-ld
 GENZEHN = genzehn
 
-GCCFLAGS = -Wall -W -marm
-LDFLAGS =
+GCCFLAGS = -Wall -W -Wextra -marm -Wno-missing-braces -Wno-unused-parameter -flto
+LDFLAGS = -flto
 ZEHNFLAGS = --name "backSpire" --240x320-support true
 
 ifeq ($(DEBUG),FALSE)
