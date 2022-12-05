@@ -3,6 +3,7 @@
 #include "ndlessext.h"
 #include "nand.h"
 #include "screen.h"
+#include "tools.h"
 #include "charmaps.h"
 #include "console.h"
 
@@ -460,7 +461,7 @@ int main(int argc, char** argv) {
     else if(action==ACTION_DOWN) {
       if(field+1<nfields) field++;
     }
-    else if(action==ACTION_REBOOT) reset();
+    else if(action==ACTION_REBOOT) trigger_reset();
     else if(action==ACTION_TAB) {
       if(field==0) {
         *minos_ptr = 0;
