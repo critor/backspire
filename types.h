@@ -1,5 +1,6 @@
-typedef unsigned long long	u64;
-typedef unsigned long int	u32;
-typedef unsigned short int	u16;
-typedef unsigned char 		u8;
+#include <stdint.h>
 
+typedef uint64_t u64;
+typedef uint32_t u32;
+typedef uint16_t u16;
+typedef uint8_t  u8;

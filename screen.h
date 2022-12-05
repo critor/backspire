@@ -1,3 +1,4 @@
+#include <libndls.h>
 #include "types.h"
 
 #define SCREEN_PIXELS	(SCREEN_WIDTH*SCREEN_HEIGHT)
