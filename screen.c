@@ -1,6 +1,6 @@
 #include <os.h>
 #include "types.h"
-#include "tools.h"
+#include "utils.h"
 #include "screen.h"
 #include "charmaps.h"
 #include "nand.h"

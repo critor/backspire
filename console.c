@@ -1,7 +1,7 @@
 #include <os.h>
 #include "screen.h"
 #include "console.h"
-#include "tools.h"
+#include "utils.h"
 #include "charmaps.h"
 
 int col=0;

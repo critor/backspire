@@ -3,7 +3,7 @@
 #include "ndlessext.h"
 #include "nand.h"
 #include "screen.h"
-#include "tools.h"
+#include "utils.h"
 #include "charmaps.h"
 #include "console.h"
 
@@ -22,57 +22,6 @@ static const char* cx2_bootmodes[3]={"OSLoader","Installer","Diags"};
 extern u16 sscreen[SCREEN_PIXELS];
 
 #define LINETEXT_SIZE 128
-
-enum {NS_CL, NS_CX, NS_CM, NS_CX2, NS_OTHER};
-static u8 getHardwareType() {
-  if(!hwtype()) return NS_CL;
-  else {
-    u8 type = nl_hwsubtype();
-    switch(type) {
-      case 0: return NS_CX;
-      case 1: return NS_CM;
-      case 2: return NS_CX2;
-      default: return NS_OTHER;
-    }
-  }
-}
-
-static void resetCurColor() {
-  setCurColorRGB(0,0,0);
-}
-
-static void setBlocksColor() {
-  setCurColorRGB(0xFF,0xFF,0x7F);
-}
-
-static void setPagesColor() {
-  setCurColorRGB(0xFF,0xFF,0);
-}
-
-static void setBytesColor() {
-  setCurColorRGB(0xBF,0xBF,0);
-}
-
-static void setInactiveColor() {
-  setCurColorRGB(0x4F,0x4F,0x4F);
-}
-
-static void dispNumStr(u16 x, u16 y, char* txt, int unit) {
-  drwBufStr(x,y,txt,0,0,0);
-  if(unit) drwBufStr(x+strlen(txt)*CHAR_WIDTH,y,"h",0,0,0);
-}
-
-static void dispNum(u16 x, u16 y, u32 val,char* suffix, int unit, int n) {
-  if(n<=0) n=7;
-  char* txt = calloc(n+1, 1);
-  snprintf(txt, n+1, "%0*lX", n, val);
-  dispNumStr(x, y, txt, unit);
-  if(suffix) {
-    invertCurColorRGB();
-    drwBufStr(x+(n+unit)*CHAR_WIDTH+1,y,suffix,0,1,0);
-  }
-  free(txt);
-}
 
 static void dispBytesNum(u16 x, u16 y, u32 val,char* suffix, int unit, int n) {
   setBytesColor();
