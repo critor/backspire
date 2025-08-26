@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
 
     resetConsole();
     resetCurColor();
-    displn("       backSpire 1.0",I_TRANSP|I_BOLD);
+    displn("       backSpire 1.1",I_TRANSP|I_BOLD);
 
     resetConsole();
     for(i=0;i<5;i++) displn("",0);
