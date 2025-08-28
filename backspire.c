@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
 
     resetConsole();
     resetCurColor();
-    displn("       backSpire 1.1",I_TRANSP|I_BOLD);
+    displn("       backSpire 1.1.1",I_TRANSP|I_BOLD);
 
     resetConsole();
     for(i=0;i<5;i++) displn("",0);
@@ -409,20 +409,20 @@ int main(int argc, char** argv) {
       if(field+1<nfields) field++;
     }
     else if(action==ACTION_REBOOT) trigger_reset();
-    else if(action==ACTION_TAB) {
-      if(field==0) {
-        *minos_ptr = 0;
+    else if(action==ACTION_TAB || action==ACTION_DEL) {
+      if(action==ACTION_TAB) {
+        if(field==0) {
+          *minos_ptr = 0;
+        }
+        else if(field==1) {
+          *boot_ptr=(*boot_ptr)+1;
+          if(*boot_ptr>=nboots) *boot_ptr=0;
+        }
       }
-      else if(field==1) {
-        *boot_ptr=(*boot_ptr)+1;
-        if(*boot_ptr>=nboots) *boot_ptr=0;
+      else if(action==ACTION_DEL) {
+        memset(ptr,0xFF,NAND_PAGE_SIZE);
+        ptr -= NAND_PAGE_SIZE;
       }
-      ext_erase_nand(offset, offset+size-1);
-      ext_write_nand(buffer, size, offset);
-    }
-    else if(action==ACTION_DEL) {
-      memset(ptr,0,NAND_PAGE_SIZE);
-      ptr -= NAND_PAGE_SIZE;
       ext_erase_nand(offset, offset+size-1);
       ext_write_nand(buffer, size, offset);
     }
