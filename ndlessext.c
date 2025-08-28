@@ -108,8 +108,15 @@ void ext_read_nand(void* dest, int size, int offset, int unknown, int percent_ma
 
 int ext_write_nand(void *source,int size, unsigned int offset) {
   int os = get_os();
-  if((os >= OSCXII52N && os <= OSCXII52C) || (os >= OSCXII53N && os <= OSCXII53C) || (os >= OSCXII62N && os <= OSCXII62C))
-    return write_nand_cx2(offset, source, size);
+  if((os >= OSCXII52N && os <= OSCXII52C) || (os >= OSCXII53N && os <= OSCXII53C) || (os >= OSCXII62N && os <= OSCXII62C)) {
+    while(size) {
+      uint32_t tsize = (size > NAND_BLOCK_SIZE) ? NAND_BLOCK_SIZE : size;
+      write_nand_cx2(offset, source, size);
+      size -= tsize;
+      offset += tsize;
+      source += tsize;
+    }
+  }
   else if (os >= OSCL31N && os <=OSCM31C && nl_ndless_rev() < 989) // Ndless 3.1
     return write_nand_31(source, size, offset);
   else
